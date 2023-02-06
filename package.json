@@ -1,10 +1,10 @@
 {
-  "name": "duckduckgo-images-api",
-  "version": "1.0.5",
+  "name": "@mudbill/duckduckgo-images-api",
+  "version": "1.1.0",
   "description": "DuckDuckGo image-search api for node",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node examples/example.js"
   },
   "repository": {
     "type": "git",
