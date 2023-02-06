@@ -1,5 +1,7 @@
 # duckduckgo-images-api
 
+Note: This package is forked from [KshitijMhatre](https://github.com/KshitijMhatre/duckduckgo-images-api) as it looks like the original project has been abandoned.
+
 A lightweight node package to programmatically obtain image search results from DuckDuckGo search engine.
 
 The method used is inspired from [python package](https://github.com/deepanprabhu/duckduckgo-images-api) with same name. Thanks to, [deepanprabhu](https://github.com/deepanprabhu) for original source. This is my first node package and it was fun to write.
@@ -9,7 +11,7 @@ The method used is inspired from [python package](https://github.com/deepanprabh
 To install, run:
 
 ```
-npm i duckduckgo-images-api
+npm i @mudbill/duckduckgo-images-api
 ```
 
 When using TypeScript, run:
