@@ -39,9 +39,7 @@ The package provides simple async api. And uses following config object as input
 image_search function return a promise that resolves to array of complete results.
 
 ```javascript
-image_search({ query: "birds", moderate: true }).then((results) =>
-  console.log(results)
-);
+image_search({ query: "birds", moderate: true }).then((results) => console.log(results));
 ```
 
 image_search_generator function is a async generator that yield promise of result set on each iteration. Useful for large iterations. Please check the node version compatability for this syntax.
