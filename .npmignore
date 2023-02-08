@@ -1,0 +1,14 @@
+# Don't include the TypeScript sources, only the JavaScript from /dist
+src/
+*.ts
+
+# Don't include examples
+examples/
+dist/examples/
+
+# Specific dev files
+.prettierrc
+tsconfig.json
+
+# Output of 'npm pack'
+*.tgz

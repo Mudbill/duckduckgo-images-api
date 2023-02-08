@@ -1,14 +1,16 @@
-const axios = require("axios");
-const { url } = require("./constants");
+import axios from "axios";
+import constants from "./constants";
 
-function sleep(ms) {
+const { url } = constants;
+
+function sleep(ms: number) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 }
 
-async function getToken(keywords) {
-  let token = null;
+async function getToken(keywords: string) {
+  let token: string | null = null;
   try {
     let res = await axios.get(url, {
       params: {
@@ -27,7 +29,4 @@ async function getToken(keywords) {
   });
 }
 
-module.exports = {
-  sleep,
-  getToken,
-};
+export { sleep, getToken };

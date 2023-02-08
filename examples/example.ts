@@ -1,7 +1,7 @@
-const { image_search, image_search_generator } = require("../src/api");
+import { image_search, image_search_generator } from "../src/api";
 
-function print(results) {
-  results.forEach((element) => {
+function print(results: any) {
+  results.forEach((element: unknown) => {
     console.log(element);
   });
 }

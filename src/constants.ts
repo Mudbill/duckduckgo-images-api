@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   url: "https://duckduckgo.com/",
   headers: {
     dnt: "1",
