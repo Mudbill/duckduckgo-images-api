@@ -21,7 +21,7 @@ The package provides simple async api. And uses following config object as input
 ```js
 {
   query: "search term",
-	moderate: false,
+  moderate: false,
   iterations: 2,
   retries: 2,
 }
