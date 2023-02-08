@@ -1,6 +1,6 @@
 {
   "name": "@mudbill/duckduckgo-images-api",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "DuckDuckGo image-search api for node",
   "license": "MIT",
   "main": "dist/index.ts",

@@ -1,6 +1,7 @@
 # Don't include the TypeScript sources, only the JavaScript from /dist
 src/
 *.ts
+!*.d.ts
 
 # Don't include examples
 examples/
