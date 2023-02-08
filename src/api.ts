@@ -54,7 +54,10 @@ async function image_search({
     while (itr < iterations) {
       while (true) {
         try {
-          let response = await axios.get<{ results: DuckDuckGoImage[]; next: string }>(reqUrl, {
+          let response = await axios.get<{
+            results: DuckDuckGoImage[];
+            next: string;
+          }>(reqUrl, {
             params,
             headers,
           });
@@ -128,7 +131,10 @@ async function* image_search_generator({
 
       while (true) {
         try {
-          let response = await axios.get<{ results: DuckDuckGoImage[]; next: string }>(reqUrl, {
+          let response = await axios.get<{
+            results: DuckDuckGoImage[];
+            next: string;
+          }>(reqUrl, {
             params,
             headers,
           });
