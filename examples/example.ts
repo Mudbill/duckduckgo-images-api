@@ -1,7 +1,11 @@
-import { image_search, image_search_generator } from "../src/api";
+import {
+  DuckDuckGoImage,
+  image_search,
+  image_search_generator,
+} from "../src/api";
 
-function print(results: any) {
-  results.forEach((element: unknown) => {
+function print(results: DuckDuckGoImage[]) {
+  results.forEach((element) => {
     console.log(element);
   });
 }

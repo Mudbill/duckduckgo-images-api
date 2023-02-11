@@ -7,10 +7,8 @@ const { url, headers, max_iter, max_retries } = constants;
 export interface DuckDuckGoImage {
   height: number;
   image: string;
-  // image_token: string; // These token fields exist, but are they useful?
   source: string;
   thumbnail: string;
-  // thumbnail_token: string;
   title: string;
   url: string;
   width: number;
@@ -18,9 +16,9 @@ export interface DuckDuckGoImage {
 
 async function image_search({
   query,
-  moderate,
-  retries,
-  iterations,
+  moderate = false,
+  retries = max_retries,
+  iterations = max_iter,
 }: {
   query: string;
   moderate?: boolean;
@@ -28,30 +26,26 @@ async function image_search({
   iterations?: number;
 }) {
   let reqUrl = url + "i.js";
-  let keywords = query;
-  let p = moderate ? 1 : -1; // by default moderate false
-  let attempt = 0;
-  if (!retries) retries = max_retries; // default to max if none provided
-  if (!iterations) iterations = max_iter; // default to max if none provided
 
   let results: DuckDuckGoImage[] = [];
 
   try {
-    let token = await getToken(keywords);
+    const token = await getToken(query);
 
-    let params = {
+    const params = {
       l: "wt-wt",
       o: "json",
-      q: keywords,
+      q: query,
       vqd: token,
       f: ",,,",
-      p: "" + p,
+      p: moderate ? "1" : "-1", // by default moderate false
     };
 
-    let data = null;
+    let data: { results: DuckDuckGoImage[]; next: string } | null = null;
     let itr = 0;
 
     while (itr < iterations) {
+      let attempt = 0;
       while (true) {
         try {
           let response = await axios.get<{
@@ -66,10 +60,9 @@ async function image_search({
           if (!data.results) throw "No results";
           break;
         } catch (error) {
-          console.error(error);
           attempt += 1;
           if (attempt > retries) {
-            return new Promise<DuckDuckGoImage[]>((resolve, reject) => {
+            return new Promise<DuckDuckGoImage[]>((resolve) => {
               resolve(results);
             });
           }
@@ -78,19 +71,19 @@ async function image_search({
         }
       }
 
-      results = [...results, ...data.results];
+      results.push(...data.results);
+
       if (!data.next) {
-        return new Promise<DuckDuckGoImage[]>((resolve, reject) => {
+        return new Promise<DuckDuckGoImage[]>((resolve) => {
           resolve(results);
         });
       }
-      reqUrl = url + data["next"];
+
+      reqUrl = url + data.next;
       itr += 1;
-      attempt = 0;
     }
-  } catch (error) {
-    console.error(error);
-  }
+  } catch (error) {}
+
   return results;
 }
 
