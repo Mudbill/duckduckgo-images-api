@@ -2,47 +2,49 @@
 
 Note: This package is forked from [KshitijMhatre](https://github.com/KshitijMhatre/duckduckgo-images-api) as it looks like the original project has been abandoned.
 
-A lightweight node package to programmatically obtain image search results from DuckDuckGo search engine.
+A lightweight Node package to programmatically obtain image search results from DuckDuckGo search engine.
 
-The method used is inspired from [python package](https://github.com/deepanprabhu/duckduckgo-images-api) with same name. Thanks to, [deepanprabhu](https://github.com/deepanprabhu) for original source.
+The method used is inspired from [python package](https://github.com/deepanprabhu/duckduckgo-images-api) with same name. Thanks to [deepanprabhu](https://github.com/deepanprabhu) for original source.
 
-## usage
+## Usage
 
 To install, run:
 
 ```
-npm i @mudbill/duckduckgo-images-api
+npm install @mudbill/duckduckgo-images-api
 ```
 
 TypeScript definitions are included as well.
 
-The package provides simple async api. And uses following config object as input:
+The package provides a simple async API, and uses the following config object as input:
 
-```js
-{
-  query: "search term",
-  moderate: false,
-  iterations: 2,
-  retries: 2,
+```ts
+type SearchOptions = {
+  // The search term (required)
+  query: string,
+
+  // Whether to use safe search moderation (optional, default false)
+  moderate?: boolean,
+
+  // Number of result sets fetched (optional, default 2)
+  iterations?: number,
+
+  // Number of retries per iteration (optional, default 2)
+  retries?: number,
 }
 ```
 
-- query param is mandatory
-- moderate (optional) to moderate search results if none provided defaults to moderation off (false)
-- iterations (optional) limit the number of result sets fetched, default 2
-- retries (optional) limit retries per iteration, default 2
+The `image_search` function returns a Promise that resolves to an array of complete results.
 
-image_search function return a promise that resolves to array of complete results.
-
-```js
+```ts
 image_search({ query: "birds", moderate: true }).then((results) =>
   console.log(results)
 );
 ```
 
-image_search_generator function is a async generator that yield promise of result set on each iteration. Useful for large iterations. Please check the node version compatability for this syntax.
+The `image_search_generator` function is an async generator that yield a Promise of result sets on each iteration. Useful for large iterations. Please check the Node version compatability for this syntax.
 
-```js
+```ts
 async function main() {
   for await (let resultSet of image_search_generator({
     query: "birds",
@@ -58,6 +60,6 @@ main().catch(console.log);
 
 Please feel free to report any issues or feature requests.
 
-### note
+### Note
 
 DuckDuckGo provides an instant answer API. This package does not use this route. This package mocks the browser behaviour using the same request format. Use it wisely.
