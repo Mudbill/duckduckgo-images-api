@@ -52,6 +52,9 @@ export async function imageSearch(
   return results;
 }
 
+/**
+ * Search DuckDuckGo for images with a generator function.
+ */
 export async function* imageSearchGenerator(
   options: ImageSearchOptions
 ): AsyncGenerator<DuckDuckGoImage[], void, unknown> {
