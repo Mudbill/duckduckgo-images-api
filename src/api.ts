@@ -1,164 +1,117 @@
-import axios from "axios";
-import constants from "./constants";
-import { sleep, getToken } from "./utils";
+import { constants } from "./constants.js";
+import { getToken, isResponseValid, sleep } from "./utils.js";
 
-const { url, headers, max_iter, max_retries } = constants;
-
+/**
+ * A DuckDuckGo image search result
+ */
 export interface DuckDuckGoImage {
+  /** Height of image in pixels */
   height: number;
-  image: string;
-  source: string;
-  thumbnail: string;
-  title: string;
-  url: string;
+
+  /** Width of image in pixels */
   width: number;
+
+  /** Image URL */
+  image: string;
+
+  /** Where DuckDuckGo found the image */
+  source: string;
+
+  /** A smaller thumbnail of the image */
+  thumbnail: string;
+
+  /** The title associated with the image (such as web page) */
+  title: string;
+
+  /** URL of web page where image was found */
+  url: string;
 }
 
-async function image_search({
-  query,
-  moderate = false,
-  retries = max_retries,
-  iterations = max_iter,
-}: {
+export interface ImageSearchOptions {
+  /** The search query */
   query: string;
-  moderate?: boolean;
+  /** Whether to use safe search or not (default true) */
+  safe?: boolean;
+  /** How many retries to attempt if a request fails (default 2) */
   retries?: number;
+  /** How many iterations to run through for images (default 1). Each iteration contains up to 100 results. */
   iterations?: number;
-}) {
-  let reqUrl = url + "i.js";
+}
 
-  let results: DuckDuckGoImage[] = [];
-
-  try {
-    const token = await getToken(query);
-
-    const params = {
-      l: "wt-wt",
-      o: "json",
-      q: query,
-      vqd: token,
-      f: ",,,",
-      p: moderate ? "1" : "-1", // by default moderate false
-    };
-
-    let data: { results: DuckDuckGoImage[]; next: string } | null = null;
-    let itr = 0;
-
-    while (itr < iterations) {
-      let attempt = 0;
-      while (true) {
-        try {
-          let response = await axios.get<{
-            results: DuckDuckGoImage[];
-            next: string;
-          }>(reqUrl, {
-            params,
-            headers,
-          });
-
-          data = response.data;
-          if (!data.results) throw "No results";
-          break;
-        } catch (error) {
-          attempt += 1;
-          if (attempt > retries) {
-            return new Promise<DuckDuckGoImage[]>((resolve) => {
-              resolve(results);
-            });
-          }
-          await sleep(5000);
-          continue;
-        }
-      }
-
-      results.push(...data.results);
-
-      if (!data.next) {
-        return new Promise<DuckDuckGoImage[]>((resolve) => {
-          resolve(results);
-        });
-      }
-
-      reqUrl = url + data.next;
-      itr += 1;
-    }
-  } catch (error) {}
-
+/**
+ * Search DuckDuckGo for images
+ */
+export async function imageSearch(
+  /** Options for the search request */
+  options: ImageSearchOptions
+) {
+  const results: DuckDuckGoImage[] = [];
+  for await (const resultSet of imageSearchGenerator(options)) {
+    results.push(...resultSet);
+  }
   return results;
 }
 
-async function* image_search_generator({
-  query,
-  moderate,
-  retries,
-  iterations,
-}: {
-  query: string;
-  moderate?: boolean;
-  retries?: number;
-  iterations?: number;
-}) {
-  let reqUrl = url + "i.js";
-  let keywords = query;
-  let p = moderate ? 1 : -1; // by default moderate false
-  let attempt = 0;
-  if (!retries) retries = max_retries; // default to max if none provided
-  if (!iterations) iterations = max_iter; // default to max if none provided
+export async function* imageSearchGenerator(options: ImageSearchOptions) {
+  // Set up config
+  const config = {
+    safe: options.safe ?? true,
+    retries: options.retries ?? constants.maxRetries,
+    iterations: options.iterations ?? constants.maxIterations,
+  };
 
-  try {
-    let token = await getToken(keywords);
+  // Set up request details
+  const token = await getToken(options.query);
+  const headers = constants.headers;
+  const params = new URLSearchParams({
+    o: "json",
+    q: options.query,
+    l: "us-en",
+    vqd: token,
+    p: config.safe ? "1" : "-1",
+  });
+  let url = new URL(`i.js?${params.toString()}`, constants.baseUrl);
 
-    let params = {
-      l: "wt-wt",
-      o: "json",
-      q: keywords,
-      vqd: token,
-      f: ",,,",
-      p: "" + p,
-    };
+  // Count each iteration to make
+  let iter = 0;
+  while (iter < config.iterations) {
+    iter++;
 
-    let itr = 0;
+    // Count each failed attempt for retries
+    let attempts = 0;
+    while (attempts < config.retries) {
+      attempts++;
 
-    while (itr < iterations) {
-      let data: { results: DuckDuckGoImage[]; next: string };
+      try {
+        const response = await fetch(url, { headers });
 
-      while (true) {
-        try {
-          let response = await axios.get<{
-            results: DuckDuckGoImage[];
-            next: string;
-          }>(reqUrl, {
-            params,
-            headers,
-          });
-
-          data = response.data;
-          if (!data?.results) throw "No results";
-          break;
-        } catch (error) {
-          console.error(error);
-          attempt += 1;
-          if (attempt > retries) {
-            yield await new Promise<DuckDuckGoImage[]>((resolve, reject) => {
-              reject("attempt finished");
-            });
-          }
-          await sleep(5000);
-          continue;
+        // Fall back to catch block if response is not okay
+        if (!response.ok) {
+          throw new Error("Response was no good");
         }
+
+        // Get JSON body
+        const body = (await response.json()) as unknown;
+
+        // Validate the JSON body
+        if (isResponseValid(body)) {
+          // Update URL for the next iteration and re-set the token (which is not included)
+          url = new URL(body.next, constants.baseUrl);
+          url.searchParams.set("vqd", token);
+
+          // Yield back the current results and close the attempt loop
+          yield body.results;
+          break;
+        } else {
+          throw new Error(
+            "Unexpected response payload, perhaps the DDG service has changed?"
+          );
+        }
+      } catch (error) {
+        // Wait 1 second and try again (if more attempts are allowed)
+        await sleep(1000);
+        continue;
       }
-
-      yield await new Promise<DuckDuckGoImage[]>((resolve, reject) => {
-        resolve(data.results);
-      });
-
-      reqUrl = url + data["next"];
-      itr += 1;
-      attempt = 0;
     }
-  } catch (error) {
-    console.error(error);
   }
 }
-
-export { image_search, image_search_generator };
