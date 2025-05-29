@@ -1,6 +1,7 @@
 {
   "name": "@mudbill/duckduckgo-images-api",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "license": "MIT",
-  "exports": "./index.ts"
+  "exports": "./index.ts",
+  "include": ["LICENSE", "README.md", "index.ts", "src/**/*.ts"]
 }
