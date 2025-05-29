@@ -1,9 +1,13 @@
 {
   "name": "@mudbill/duckduckgo-images-api",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "DuckDuckGo image search API",
   "license": "MIT",
-  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "publish:jsr": "npx jsr publish",
+    "test": "bun test"
+  },
   "files": [
     "dist"
   ],
@@ -33,10 +37,6 @@
     "image",
     "image-search"
   ],
-  "scripts": {
-    "build": "tsc",
-    "prepublish": "tsc"
-  },
   "devDependencies": {
     "@types/bun": "^1.2.14",
     "typescript": "^5.8.3"

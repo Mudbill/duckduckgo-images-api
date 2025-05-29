@@ -44,7 +44,7 @@ export interface ImageSearchOptions {
 export async function imageSearch(
   /** Options for the search request */
   options: ImageSearchOptions
-) {
+): Promise<DuckDuckGoImage[]> {
   const results: DuckDuckGoImage[] = [];
   for await (const resultSet of imageSearchGenerator(options)) {
     results.push(...resultSet);
@@ -52,7 +52,9 @@ export async function imageSearch(
   return results;
 }
 
-export async function* imageSearchGenerator(options: ImageSearchOptions) {
+export async function* imageSearchGenerator(
+  options: ImageSearchOptions
+): AsyncGenerator<DuckDuckGoImage[], void, unknown> {
   // Set up config
   const config = {
     safe: options.safe ?? true,
