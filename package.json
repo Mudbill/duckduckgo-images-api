@@ -1,6 +1,6 @@
 {
   "name": "@mudbill/duckduckgo-images-api",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "DuckDuckGo image search API",
   "license": "MIT",
   "scripts": {
