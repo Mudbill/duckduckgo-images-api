@@ -1,7 +1,10 @@
 {
+  "$schema": "https://jsr.io/schema/config-file.v1.json",
   "name": "@mudbill/duckduckgo-images-api",
   "version": "2.0.3",
   "license": "MIT",
   "exports": "./index.ts",
-  "include": ["LICENSE", "README.md", "index.ts", "src/**/*.ts"]
+  "publish": {
+    "include": ["LICENSE", "README.md", "index.ts", "src/**/*.ts"]
+  }
 }
