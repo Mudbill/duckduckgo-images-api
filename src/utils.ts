@@ -51,7 +51,6 @@ export async function getToken(query: string) {
   const token = text.match(/vqd=([\d-]+)\&/)?.[1] || "";
 
   if (!token) {
-    console.warn(text);
     throw new Error("Failed to get token");
   }
 
